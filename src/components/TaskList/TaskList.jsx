@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import TaskContainer from "./TaskContainer";
 import { AuthContext } from "../../context/AuthProvider";
+import { FaClipboardList } from "react-icons/fa";
 
 const TaskList = ({ data }) => {
-  const [userData, setUserData, AdminData] = useContext(AuthContext);
+  const { employeeList, setEmployeeList } = useContext(AuthContext); // Updated to use object destructuring
   const [tasks, setTasks] = useState(data ? data.tasks : []);
 
   const onAccept = (title, date) => {
@@ -29,7 +30,6 @@ const TaskList = ({ data }) => {
           taskCount.active++;
           if (taskCount.new > 0) taskCount.new--;
 
-
           employees[employeeIndex].tasks[taskIndex] = updatedTask;
           employees[employeeIndex].taskCount = taskCount;
           localStorage.setItem("employees", JSON.stringify(employees));
@@ -40,12 +40,18 @@ const TaskList = ({ data }) => {
             return newTasks;
           });
 
-          // Update user data in context
           setUserData(prevUserData => ({
             ...prevUserData,
             tasks: employees[employeeIndex].tasks,
             taskCount: taskCount
           }));
+
+          // Update the state in context
+          if (Array.isArray(employeeList)) {
+            const updatedEmployeeList = [...employeeList];
+            updatedEmployeeList[employeeIndex] = {...employees[employeeIndex]};
+            setEmployeeList(updatedEmployeeList);
+          }
         }
       }
     }
@@ -70,7 +76,6 @@ const TaskList = ({ data }) => {
             failed: false
           };
           
-          // Update taskCount
           const taskCount = employees[employeeIndex].taskCount;
           taskCount.active--;
           taskCount.completed++;
@@ -85,16 +90,23 @@ const TaskList = ({ data }) => {
             return newTasks;
           });
 
-          // Update user data in context
           setUserData(prevUserData => ({
             ...prevUserData,
             tasks: employees[employeeIndex].tasks,
             taskCount: taskCount
           }));
+
+          // Update the state in context
+          if (Array.isArray(employeeList)) {
+            const updatedEmployeeList = [...employeeList];
+            updatedEmployeeList[employeeIndex] = {...employees[employeeIndex]};
+            setEmployeeList(updatedEmployeeList);
+          }
         }
       }
     }
   };
+  
   const onCancel = (title, date) => {
     const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
     if (loggedUser && loggedUser.id) {
@@ -114,7 +126,6 @@ const TaskList = ({ data }) => {
             failed: true
           };
           
-          // Update taskCount
           const taskCount = employees[employeeIndex].taskCount;
           taskCount.new--;
           taskCount.failed++;
@@ -129,12 +140,18 @@ const TaskList = ({ data }) => {
             return newTasks;
           });
 
-          // Update user data in context
           setUserData(prevUserData => ({
             ...prevUserData,
             tasks: employees[employeeIndex].tasks,
             taskCount: taskCount
           }));
+
+          // Update the state in context
+          if (Array.isArray(employeeList)) {
+            const updatedEmployeeList = [...employeeList];
+            updatedEmployeeList[employeeIndex] = {...employees[employeeIndex]};
+            setEmployeeList(updatedEmployeeList);
+          }
         }
       }
     }
@@ -147,23 +164,34 @@ const TaskList = ({ data }) => {
   }, [data]);
 
   return (
-    <div className="tasklist flex overflow-x-auto items-center gap-3 w-full flex-nowrap mt-4">
-      {tasks.map((item, index) => (
-        <TaskContainer
-          key={index}
-          active={item.active}
-          date={item.date}
-          newTask={item.newTask}
-          failed={item.failed}
-          completed={item.completed}
-          title={item.title}
-          description={item.description}
-          onAccept={onAccept}
-          onComplete={onComplete}
-          onCancel={onCancel}
-        />
-      ))}
-    </div>
+    <>
+      {tasks && tasks.length > 0 ? (
+        <div className="tasklist flex overflow-x-auto pb-6 items-stretch gap-6 w-full flex-nowrap">
+          {tasks.map((item, index) => (
+            <TaskContainer
+              key={index}
+              active={item.active}
+              date={item.date}
+              newTask={item.newTask}
+              failed={item.failed}
+              completed={item.completed}
+              title={item.title}
+              description={item.description}
+              category={item.category || ''}
+              onAccept={onAccept}
+              onComplete={onComplete}
+              onCancel={onCancel}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <FaClipboardList className="text-6xl mb-4 text-gray-300" />
+          <p className="text-lg">No tasks found</p>
+          <p className="text-sm">Tasks assigned to you will appear here</p>
+        </div>
+      )}
+    </>
   );
 };
 

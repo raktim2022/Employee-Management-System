@@ -12,6 +12,7 @@ const TaskContainer = ({
   title,
   description,
   date,
+  category,
   onAccept,
   onComplete,
   onCancel
@@ -27,6 +28,7 @@ const TaskContainer = ({
           newTask={newTask}
           title={title}
           description={description}
+          category={category}
           onComplete={onComplete}
         />
       ) : (
@@ -39,6 +41,7 @@ const TaskContainer = ({
           newTask={newTask}
           title={title}
           description={description}
+          category={category}
           onComplete={onComplete}
         />
       ) : (
@@ -51,6 +54,7 @@ const TaskContainer = ({
           newTask={newTask}
           title={title}
           description={description}
+          category={category}
           onAccept={onAccept}
           onCancel={onCancel}
         />
@@ -63,6 +67,7 @@ const TaskContainer = ({
           completed={completed}
           title={title}
           description={description}
+          category={category}
         />
       ) : (
         ""
@@ -73,6 +78,7 @@ const TaskContainer = ({
           failed={failed}
           title={title}
           description={description}
+          category={category}
         />
       ) : (
         ""
